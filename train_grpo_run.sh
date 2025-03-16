@@ -1,5 +1,5 @@
-export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-export DATA_DIR='data/nq_search'
+export CUDA_VISIBLE_DEVICES=0,2,3,4
+export DATA_DIR='/data/comm/RUC-NLPIR/FlashRAG_datasets/nq'
 
 WAND_PROJECT='Search-R1'
 
@@ -16,7 +16,7 @@ WAND_PROJECT='Search-R1'
 # export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-3b-em
 # export BASE_MODEL='Qwen/Qwen2.5-3B-Instruct'
 # export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-3b-it-em
-export BASE_MODEL='Qwen/Qwen2.5-7B'
+export BASE_MODEL='/data/model/Qwen/Qwen2.5-7B'
 export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-7b-em
 # export BASE_MODEL='Qwen/Qwen2.5-7B-Instruct'
 # export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-7b-it-em
@@ -66,7 +66,7 @@ PYTHONUNBUFFERED=1 python3 -m verl.trainer.main_ppo \
     +trainer.val_only=false \
     +trainer.val_before_train=true \
     trainer.default_hdfs_dir=null \
-    trainer.n_gpus_per_node=8 \
+    trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.save_freq=100 \
     trainer.test_freq=50 \
