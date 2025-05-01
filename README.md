@@ -1,24 +1,37 @@
 # Search-R1: Train your LLMs to reason and call a search engine with reinforcement learning
 
-<strong>Search-R1</strong> is an extension of <strong>DeepSeek-R1(-Zero)</strong> methods for <em>training reasoning and searching (tool-call) interleaved LLMs</em>. We built upon [veRL](https://github.com/volcengine/verl).
+<!-- <strong>Search-R1</strong> is a reinforcement learning framework for <em>training reasoning and searching (tool-call) interleaved LLMs</em>.  -->
+<!-- We built upon [veRL](https://github.com/volcengine/verl). -->
+**Search-R1** is a reinforcement learning framework designed for training **reasoning-and-searching interleaved LLMs**—language models that learn to reason and make tool calls (e.g., to search engines) in a coordinated manner.
 
-Through RL (rule-based outcome reward), the 3B **base** LLM (both Qwen2.5-3b-base and Llama3.2-3b-base) develops reasoning and search engine calling abilities all on its own.
+<!-- It can be seen as an extension of <strong>DeepSeek-R1(-Zero)</strong> with interleaved search engine calling and an opensource RL training-based solution for <strong>OpenAI DeepResearch</strong>. -->
+Built upon [veRL](https://github.com/volcengine/verl), Search-R1 extends the ideas of **DeepSeek-R1(-Zero)** by incorporating interleaved search engine access and provides a fully open-source RL training pipeline. It serves as an alternative and open solution to **OpenAI DeepResearch**, enabling research and development in tool-augmented LLM reasoning.
 
-Paper: [link](https://arxiv.org/pdf/2503.09516); Model and data: [link](https://huggingface.co/collections/PeterJinGo/search-r1-67d1a021202731cb065740f5); Twitter thread: [link](https://x.com/BowenJin13/status/1895544294473109889); Full experiment log 1: [link](https://wandb.ai/peterjin/Search-R1-open); Full experiment log 2: [link](https://wandb.ai/peterjin/Search-R1-nq_hotpotqa_train)
+<!-- Through RL (rule-based outcome reward), the 3B **base** LLM (both Qwen2.5-3b-base and Llama3.2-3b-base) develops reasoning and search engine calling abilities all on its own. -->
 
-You can refer to this [link](https://github.com/PeterGriffinJin/Search-R1/tree/main/scripts/nq_hotpotqa) for detailed instructions on reproducing the results from the paper.
+We support different RL methods (e.g., PPO, GRPO, reinforce), different LLMs (e.g., llama3, Qwen2.5, etc) and different search engines (e.g., local sparse/dense retrievers and online search engines).
+
+Paper: [link](https://arxiv.org/pdf/2503.09516); Model and data: [link](https://huggingface.co/collections/PeterJinGo/search-r1-67d1a021202731cb065740f5); Twitter thread: [link](https://x.com/BowenJin13/status/1895544294473109889); Full experiment log: [prelim](https://wandb.ai/peterjin/Search-R1-open); [v0.1](https://wandb.ai/peterjin/Search-R1-nq_hotpotqa_train); [v0.2](https://wandb.ai/peterjin/Search-R1-v0.2). Details about these logs and methods can be find [here](https://github.com/PeterGriffinJin/Search-R1/blob/main/docs/experiment_log.md).
 
 
-![single-turn](public/single-turn.png)
+![single-turn](public/main.png)
 
+## News
+
+- [2025.4.10] We support [multinode](https://github.com/PeterGriffinJin/Search-R1/blob/main/docs/multinode.md) training for 30B+ LLMs!
+- [2025.4.5] We support [different search engines](https://github.com/PeterGriffinJin/Search-R1/blob/main/docs/retriever.md) including sparse local retriever, dense local retriever with ANN indexing and online search engines!
+- [2025.3] The [paper](https://arxiv.org/pdf/2503.09516) is published with the logs: [v0.1](https://wandb.ai/peterjin/Search-R1-nq_hotpotqa_train); [v0.2](https://wandb.ai/peterjin/Search-R1-v0.2).
+- [2025.2] We opensource Search-R1 codebase with [preliminary results](https://wandb.ai/peterjin/Search-R1-open).
 
 ## Links
 
 - [Installation](#installation)
 - [Quick start](#quick-start)
 - [Preliminary results](#preliminary-results)
+- [Inference](#inference)
 - [Use your own dataset](#use-your-own-dataset)
 - [Use your own search engine](#use-your-own-search-engine)
+- [Features](#features)
 - [Ackowledge](#acknowledge)
 - [Citations](#citations)
 
@@ -49,7 +62,7 @@ conda activate retriever
 
 # we recommend installing torch with conda for faiss-gpu
 conda install pytorch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 pytorch-cuda=12.1 -c pytorch -c nvidia
-pip install transformers datasets
+pip install transformers datasets pyserini
 
 ## install the gpu version faiss to guarantee efficient RL rollout
 conda install -c pytorch -c nvidia faiss-gpu=1.8.0
@@ -99,6 +112,20 @@ bash train_ppo.sh
 
 ![multi-turn](public/multi-turn.png)
 
+## Inference
+#### You can play with the trained Search-R1 model with your own question.
+(1) Launch a local retrieval server.
+```bash
+conda activate retriever
+bash retrieval_launch.sh
+```
+
+(2) Run inference.
+```bash
+conda activate searchr1
+python infer.py
+```
+You can modify the ```question``` on line 7 to something you're interested in.
 
 ## Use your own dataset
 
@@ -148,17 +175,21 @@ You can change ```retriever_name``` and ```retriever_model``` to your interested
 
 ## Use your own search engine
 
+Our codebase supports local sparse retriever (e.g., BM25), local dense retriever (both flat indexing with GPUs and ANN indexing with CPUs) and online search engine (e.g., Google, Bing, etc). More details can be found [here](https://github.com/PeterGriffinJin/Search-R1/tree/main/docs/retriever.md).
+
 The main philosophy is to launch a local or remote search engine server separately from the main RL training pipeline. 
 
 The LLM can call the search engine by calling the search API (e.g., "http://127.0.0.1:8000/retrieve").
 
 You can refer to ```search_r1/search/retriever_server.py``` for an example of launching a local retriever server.
 
-## To do
-- Support google search / bing search / brave search API and others.
-- Support LoRA tuning.
-- Support supervised finetuning.
-- Support off-the-shelf rerankers.
+## Features
+- Support local sparse retrievers (e.g., BM25). ✔️
+- Support local dense retrievers (both flat indexing and ANN indexing) ✔️
+- Support google search / bing search / brave search API and others. ✔️
+- Support off-the-shelf neural rerankers. ✔️
+- Support different RL methods (e.g., PPO, GRPO, reinforce). ✔️
+- Support different LLMs (e.g., llama3, Qwen2.5, etc). ✔️
 
 ## Acknowledge
 
@@ -167,13 +198,20 @@ Its implementation is built upon [veRL](https://github.com/volcengine/verl) and 
 We sincerely appreciate the efforts of these teams for their contributions to open-source research and development.
 We thank Jinsung Yoon and Sercan Arik for insightful discussions.
 
+## Awesome work powered or inspired by Search-R1
+
+- [DeepResearcher](https://github.com/GAIR-NLP/DeepResearcher): Scaling Deep Research via Reinforcement Learning in Real-world Environments. [![[code]](https://img.shields.io/github/stars/GAIR-NLP/DeepResearcher)](https://github.com/GAIR-NLP/DeepResearcher)
+- [Multimodal-Search-R1](https://github.com/EvolvingLMMs-Lab/multimodal-search-r1): Incentivizing LMMs to Search. [![[code]](https://img.shields.io/github/stars/EvolvingLMMs-Lab/multimodal-search-r1)](https://github.com/EvolvingLMMs-Lab/multimodal-search-r1)
+- [OTC](https://arxiv.org/pdf/2504.14870): Optimal Tool Calls via Reinforcement Learning.
+
+
 ## Citations
 
 ```bibtex
-@misc{jin2025searchr1,
-  title   = {Search-R1: Train your LLMs to reason and call a search engine with reinforcement learning},
-  author  = {Bowen Jin and Zhenrui Yue and Hansi Zeng and Jiawei Han},
-  howpublished = {\url{https://github.com/PeterGriffinJin/Search-R1}},
-  year         = {2025}
+@article{jin2025search,
+  title={Search-R1: Training LLMs to Reason and Leverage Search Engines with Reinforcement Learning},
+  author={Jin, Bowen and Zeng, Hansi and Yue, Zhenrui and Wang, Dong and Zamani, Hamed and Han, Jiawei},
+  journal={arXiv preprint arXiv:2503.09516},
+  year={2025}
 }
 ```
