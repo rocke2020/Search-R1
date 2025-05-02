@@ -254,6 +254,7 @@ class DenseRetriever(BaseRetriever):
             batch_idxs = batch_idxs.tolist()
 
             # load_docs is not vectorized, but is a python list approach
+            # batch_idxs is a list of lists int, so we need to flatten it
             flat_idxs = sum(batch_idxs, [])
             batch_results = load_docs(self.corpus, flat_idxs)
             # chunk them back
@@ -389,4 +390,4 @@ if __name__ == "__main__":
     retriever = get_retriever(config)
     
     # 3) Launch the server. By default, it listens on http://127.0.0.1:8000
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=9441)
