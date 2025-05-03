@@ -19,7 +19,7 @@ import re
 import os
 import datasets
 
-from verl.utils.hdfs_io import copy, makedirs
+# from verl.utils.hdfs_io import copy, makedirs
 import argparse
 
 
@@ -41,7 +41,7 @@ If you find no further external knowledge needed, you can directly provide the a
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--local_dir', default='./data/nq_search')
+    parser.add_argument('--local_dir', default='/data/dong-qichang/corpus/RUC-NLPIR/FlashRAG_datasets/nq')
     parser.add_argument('--hdfs_dir', default=None)
     parser.add_argument('--template_type', type=str, default='base')
 
