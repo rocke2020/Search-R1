@@ -57,7 +57,7 @@ if __name__ == '__main__':
         dataset = datasets.load_dataset('RUC-NLPIR/FlashRAG_datasets', data_source)
 
         train_dataset = dataset['train']
-
+        print(f'{len(train_dataset) = }')
         # add a row to each data item that represents a unique id
         def make_map_fn(split):
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
         train_dataset = train_dataset.map(function=make_map_fn('train'), with_indices=True)
         all_dataset.append(train_dataset)
-
+        
     local_dir = args.local_dir
     hdfs_dir = args.hdfs_dir
 
