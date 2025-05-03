@@ -26,7 +26,7 @@ def main():
         return_scores: bool = False
     """
     queries = [
-        "What is the capital of France?",
+        "total number of death row inmates in the us?",
         'Who wrote "To Kill a Mockingbird"?',
         "What is the largest planet in our solar system?",
     ]
