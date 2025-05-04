@@ -19,7 +19,7 @@ import re
 import os
 import datasets
 
-from verl.utils.hdfs_io import copy, makedirs
+# from verl.utils.hdfs_io import copy, makedirs
 import argparse
 
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         dataset = datasets.load_dataset('RUC-NLPIR/FlashRAG_datasets', data_source)
 
         train_dataset = dataset['train']
-
+        print(f'{len(train_dataset) = }')
         # add a row to each data item that represents a unique id
         def make_map_fn(split):
 
@@ -92,14 +92,14 @@ if __name__ == '__main__':
 
         train_dataset = train_dataset.map(function=make_map_fn('train'), with_indices=True)
         all_dataset.append(train_dataset)
-
+        
     local_dir = args.local_dir
     hdfs_dir = args.hdfs_dir
 
     all_train_dataset = datasets.concatenate_datasets(all_dataset)
     all_train_dataset.to_parquet(os.path.join(local_dir, 'train.parquet'))
 
-    if hdfs_dir is not None:
-        makedirs(hdfs_dir)
+    # if hdfs_dir is not None:
+    #     makedirs(hdfs_dir)
 
-        copy(src=local_dir, dst=hdfs_dir)
+    #     copy(src=local_dir, dst=hdfs_dir)

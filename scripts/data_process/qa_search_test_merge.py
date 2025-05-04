@@ -19,7 +19,7 @@ import re
 import os
 import datasets
 
-from verl.utils.hdfs_io import copy, makedirs
+# from verl.utils.hdfs_io import copy, makedirs
 import argparse
 
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     all_test_dataset = datasets.concatenate_datasets(all_dataset)
     all_test_dataset.to_parquet(os.path.join(local_dir, 'test.parquet'))
 
-    if hdfs_dir is not None:
-        makedirs(hdfs_dir)
+    # if hdfs_dir is not None:
+    #     makedirs(hdfs_dir)
 
-        copy(src=local_dir, dst=hdfs_dir)
+    #     copy(src=local_dir, dst=hdfs_dir)
