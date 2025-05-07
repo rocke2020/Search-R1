@@ -13,6 +13,7 @@
 # limitations under the License.
 """
 Note that we don't combine the main with ray_trainer as ray_trainer is used by other main.
+key log tracking: epoch \d+, step \d+
 """
 
 from verl import DataProto

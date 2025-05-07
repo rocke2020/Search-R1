@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2,3,4,5,6,7
-export DATA_DIR='/data/corpus/RUC-NLPIR/FlashRAG_datasets/nq_hotpotqa_train'
-export HYDRA_FULL_ERROR=1
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export DATA_DIR='/data/corpus/RUC-NLPIR/FlashRAG_datasets/nq'
+# export HYDRA_FULL_ERROR=1
 WAND_PROJECT='Search-R1'
 
 # export BASE_MODEL='meta-llama/Llama-3.2-3B'
@@ -17,7 +17,7 @@ WAND_PROJECT='Search-R1'
 # export BASE_MODEL='Qwen/Qwen2.5-3B-Instruct'
 # export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-3b-it-em
 export BASE_MODEL='/data/model/Qwen/Qwen2.5-7B'
-export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-7b-em
+export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-7b
 # export BASE_MODEL='Qwen/Qwen2.5-7B-Instruct'
 # export EXPERIMENT_NAME=nq-search-r1-grpo-qwen2.5-7b-it-em
 
@@ -67,17 +67,17 @@ PYTHONUNBUFFERED=1 python3 -m verl.trainer.main_ppo \
     +trainer.val_only=false \
     +trainer.val_before_train=true \
     trainer.default_hdfs_dir=null \
-    trainer.n_gpus_per_node=6 \
+    trainer.n_gpus_per_node=8 \
     trainer.nnodes=1 \
-    trainer.save_freq=100 \
-    trainer.test_freq=100 \
+    trainer.save_freq=50 \
+    trainer.test_freq=50 \
     trainer.project_name=$WAND_PROJECT \
     trainer.experiment_name=$EXPERIMENT_NAME \
     trainer.total_epochs=2 \
     trainer.total_training_steps=1005 \
     trainer.default_hdfs_dir=null \
     trainer.default_local_dir=verl_checkpoints/$EXPERIMENT_NAME \
-    max_turns=2 \
+    max_turns=3 \
     retriever.url="http://127.0.0.1:9441/retrieve" \
     retriever.topk=3 \
     2>&1 | tee $EXPERIMENT_NAME.log
