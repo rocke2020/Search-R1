@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5
+export CUDA_VISIBLE_DEVICES=6,7,2,3,4,5
 export DATA_DIR='/data/corpus/RUC-NLPIR/FlashRAG_datasets/nq'
 # export HYDRA_FULL_ERROR=1
 WAND_PROJECT='Search-R1'
