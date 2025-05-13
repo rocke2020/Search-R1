@@ -52,18 +52,24 @@ class LLMGenerationManager:
         )['input_ids']
 
     def _postprocess_responses(self, responses: torch.Tensor) -> torch.Tensor:
-        """Process responses to stop at search operation or answer operation."""
+        """Process responses to stop at search operation or answer operation.
+        
+        priority to get search content if available and then answer content.
+        """
         responses_str = self.tokenizer.batch_decode(
             responses, 
             skip_special_tokens=True
         )
 
-        responses_str = [resp.split('</search>')[0] + '</search>'
-                 if '</search>' in resp 
-                 else resp.split('</answer>')[0] + '</answer>'
-                 if '</answer>' in resp 
-                 else resp
-                 for resp in responses_str]
+        # priority to get search content
+        responses_str = [
+            (
+                resp.split("</search>")[0] + "</search>"
+                if "</search>" in resp
+                else resp.split("</answer>")[0] + "</answer>" if "</answer>" in resp else resp
+            )
+            for resp in responses_str
+        ]
 
         if self.config.no_think_rl:
             raise ValueError('stop')
@@ -222,14 +228,15 @@ class LLMGenerationManager:
         
         original_left_side = {'input_ids': initial_input_ids[:, -self.config.max_start_length:]}
         original_right_side = {'responses': initial_input_ids[:, []], 'responses_with_info_mask': initial_input_ids[:, []]}
-        
+        # retrieval_launch.sh
+        # print(f'{gen_batch.batch["input_ids"].shape = }')
         active_mask = torch.ones(gen_batch.batch['input_ids'].shape[0], dtype=torch.bool)
         turns_stats = torch.ones(gen_batch.batch['input_ids'].shape[0], dtype=torch.int)
         valid_action_stats = torch.zeros(gen_batch.batch['input_ids'].shape[0], dtype=torch.int)
         valid_search_stats = torch.zeros(gen_batch.batch['input_ids'].shape[0], dtype=torch.int)
         active_num_list = [active_mask.sum().item()]
         rollings = gen_batch
-
+        # print(f'{active_mask.sum() = }')
         # Main generation loop
         for step in range(self.config.max_turns):
             if not active_mask.sum():
@@ -238,7 +245,11 @@ class LLMGenerationManager:
                 rollings.batch,
                 keys=['input_ids', 'attention_mask', 'position_ids']
             )
-            
+            for k, v in rollings.batch.items():
+                r = v[active_mask]
+                # v.shape torch.Size([256, 155])
+                print(f'{v.shape = }, {r.shape = }')
+                break
             # gen_output = self.actor_rollout_wg.generate_sequences(rollings)
             rollings_active = DataProto.from_dict({
                 k: v[active_mask] for k, v in rollings.batch.items()
@@ -246,7 +257,9 @@ class LLMGenerationManager:
             gen_output = self._generate_with_gpu_padding(rollings_active)
 
             meta_info = gen_output.meta_info            
+            # After this step responses_ids responses_str shape[0] = active_mask.sum()
             responses_ids, responses_str = self._postprocess_responses(gen_output.batch['responses'])
+            # After this step responses_ids responses_str shape[0] = full batch size
             responses_ids, responses_str = self.tensor_fn._example_level_pad(responses_ids, responses_str, active_mask)
 
             # Execute in environment and process observations
@@ -350,7 +363,7 @@ class LLMGenerationManager:
         
         return final_output
 
-    def execute_predictions(self, predictions: List[str], pad_token: str, active_mask=None, do_search=True) -> List[str]:
+    def execute_predictions(self, predictions: List[str], pad_token: str, active_mask=None, do_search=True) -> Tuple[List]:
         """
         Execute predictions across multiple environments.
         NOTE: the function is the actual `step` function in the environment
