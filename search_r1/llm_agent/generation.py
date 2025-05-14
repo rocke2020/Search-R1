@@ -224,7 +224,17 @@ class LLMGenerationManager:
         return padded_output
 
     def run_llm_loop(self, gen_batch, initial_input_ids: torch.Tensor) -> Tuple[Dict, Dict]:
-        """Run main LLM generation loop."""
+        """Run main LLM generation loop.
+        
+        Returns a DataProto object with the following keys for tensor data:
+            - responses
+            - responses_with_info_mask
+            - prompts
+            - input_ids
+            - attention_mask, is the original attention mask, info is 1.
+            - info_mask, info is 0
+            - position_ids
+        """
         
         original_left_side = {'input_ids': initial_input_ids[:, -self.config.max_start_length:]}
         original_right_side = {'responses': initial_input_ids[:, []], 'responses_with_info_mask': initial_input_ids[:, []]}
@@ -334,7 +344,17 @@ class LLMGenerationManager:
     def _compose_final_output(self, left_side: Dict,
                             right_side: Dict,
                             meta_info: Dict) -> Tuple[Dict, Dict]:
-        """Compose final generation output."""
+        """Compose final generation output. attention_mask is the original attention mask, but create info_mask.
+        
+        Returns a DataProto object with the following keys for tensor data:
+            - responses
+            - responses_with_info_mask
+            - prompts
+            - input_ids
+            - attention_mask, is the original attention mask, info is 1.
+            - info_mask, info is 0
+            - position_ids
+        """
         final_output = right_side.copy()
         final_output['prompts'] = left_side['input_ids']
         
