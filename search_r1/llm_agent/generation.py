@@ -56,6 +56,7 @@ class LLMGenerationManager:
         
         priority to get search content if available and then answer content.
         """
+        print(f'{responses.shape = }')
         responses_str = self.tokenizer.batch_decode(
             responses, 
             skip_special_tokens=True
@@ -246,7 +247,7 @@ class LLMGenerationManager:
         valid_search_stats = torch.zeros(gen_batch.batch['input_ids'].shape[0], dtype=torch.int)
         active_num_list = [active_mask.sum().item()]
         rollings = gen_batch
-        # print(f'{active_mask.sum() = }')
+        print(f'{active_mask.sum() = }')
         # Main generation loop
         for step in range(self.config.max_turns):
             if not active_mask.sum():
@@ -255,15 +256,14 @@ class LLMGenerationManager:
                 rollings.batch,
                 keys=['input_ids', 'attention_mask', 'position_ids']
             )
-            for k, v in rollings.batch.items():
-                r = v[active_mask]
-                # v.shape torch.Size([256, 155])
-                print(f'{v.shape = }, {r.shape = }')
-                break
-            # gen_output = self.actor_rollout_wg.generate_sequences(rollings)
+
             rollings_active = DataProto.from_dict({
                 k: v[active_mask] for k, v in rollings.batch.items()
             })            
+            verbose = 1
+            if verbose > 0:
+                for k, v in rollings_active.batch.items():
+                    print(f'{k = } {step = } {v.shape = }')
             gen_output = self._generate_with_gpu_padding(rollings_active)
 
             meta_info = gen_output.meta_info            
@@ -310,7 +310,9 @@ class LLMGenerationManager:
                 k: v[active_mask] for k, v in rollings.batch.items()
             })            
             gen_output = self._generate_with_gpu_padding(rollings_active)
-
+            if verbose > 0:
+                for k, v in rollings_active.batch.items():
+                    print(f'{k = } {step = } {v.shape = }')
             meta_info = gen_output.meta_info            
             responses_ids, responses_str = self._postprocess_responses(gen_output.batch['responses'])
             responses_ids, responses_str = self.tensor_fn._example_level_pad(responses_ids, responses_str, active_mask)
@@ -325,7 +327,6 @@ class LLMGenerationManager:
             active_num_list.append(active_mask.sum().item())
             valid_action_stats += torch.tensor(valid_action, dtype=torch.int)
             valid_search_stats += torch.tensor(is_search, dtype=torch.int)
-            
 
             original_right_side = self._update_right_side(
                 original_right_side,

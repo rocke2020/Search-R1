@@ -490,7 +490,7 @@ class DataProto:
         """
         assert len(
             self) % chunks == 0, f'only support equal chunk. Got size of DataProto {len(self)} and chunk {chunks}.'
-        print(f'{len(self) = }')
+        print(f'{len(self) = } {chunks = }')
         if self.batch is not None:
             batch_lst = self.batch.chunk(chunks=chunks, dim=0)
         else:
