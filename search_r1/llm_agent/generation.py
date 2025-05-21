@@ -56,7 +56,6 @@ class LLMGenerationManager:
         
         priority to get search content if available and then answer content.
         """
-        print(f'{responses.shape = }')
         responses_str = self.tokenizer.batch_decode(
             responses, 
             skip_special_tokens=True
@@ -247,7 +246,7 @@ class LLMGenerationManager:
         valid_search_stats = torch.zeros(gen_batch.batch['input_ids'].shape[0], dtype=torch.int)
         active_num_list = [active_mask.sum().item()]
         rollings = gen_batch
-        print(f'{active_mask.sum() = }')
+        # print(f'{active_mask.sum() = }')
         # Main generation loop
         for step in range(self.config.max_turns):
             if not active_mask.sum():
@@ -260,7 +259,7 @@ class LLMGenerationManager:
             rollings_active = DataProto.from_dict({
                 k: v[active_mask] for k, v in rollings.batch.items()
             })            
-            verbose = 1
+            verbose = 0
             if verbose > 0:
                 for k, v in rollings_active.batch.items():
                     print(f'{k = } {step = } {v.shape = }')

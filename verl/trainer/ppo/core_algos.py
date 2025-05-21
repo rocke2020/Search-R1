@@ -130,7 +130,8 @@ def compute_grpo_outcome_advantage(token_level_rewards: torch.Tensor,
     response_length = token_level_rewards.shape[-1]
     non_zero_mask = (token_level_rewards != 0)
     scores = (token_level_rewards * non_zero_mask).sum(dim=-1)
-
+    print(f'{scores = } {token_level_rewards.sum(dim=-1) = }')
+    print(f'{torch.isclose(scores, token_level_rewards.sum(dim=-1)) = }')
     id2score = defaultdict(list)
     id2mean = {}
     id2std = {}
