@@ -126,6 +126,7 @@ class FSDPVLLMShardingManager(BaseShardingManager):
         dp_rank = torch.distributed.get_rank()
         dp_size = torch.distributed.get_world_size()  # not consider torch micro-dp
         tp_size = vllm_ps.get_tensor_model_parallel_world_size()
+        print(f'get_tensor_model_parallel_world_size {dp_rank = }, {dp_size = }, {tp_size = }')
         if tp_size > 1:
             # TODO: shall we build a micro_dp group for vllm when integrating with vLLM?
             local_prompts = data.chunk(chunks=tp_size)

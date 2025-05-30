@@ -239,7 +239,7 @@ class LLMGenerationManager:
         original_left_side = {'input_ids': initial_input_ids[:, -self.config.max_start_length:]}
         original_right_side = {'responses': initial_input_ids[:, []], 'responses_with_info_mask': initial_input_ids[:, []]}
         # retrieval_launch.sh
-        # print(f'{gen_batch.batch["input_ids"].shape = }')
+        print(f'{gen_batch.batch["input_ids"].shape = }')
         active_mask = torch.ones(gen_batch.batch['input_ids'].shape[0], dtype=torch.bool)
         turns_stats = torch.ones(gen_batch.batch['input_ids'].shape[0], dtype=torch.int)
         valid_action_stats = torch.zeros(gen_batch.batch['input_ids'].shape[0], dtype=torch.int)
@@ -259,7 +259,7 @@ class LLMGenerationManager:
             rollings_active = DataProto.from_dict({
                 k: v[active_mask] for k, v in rollings.batch.items()
             })            
-            verbose = 0
+            verbose = 1
             if verbose > 0:
                 for k, v in rollings_active.batch.items():
                     print(f'{k = } {step = } {v.shape = }')
@@ -312,6 +312,7 @@ class LLMGenerationManager:
             if verbose > 0:
                 for k, v in rollings_active.batch.items():
                     print(f'{k = } {step = } {v.shape = }')
+                    break
             meta_info = gen_output.meta_info            
             responses_ids, responses_str = self._postprocess_responses(gen_output.batch['responses'])
             responses_ids, responses_str = self.tensor_fn._example_level_pad(responses_ids, responses_str, active_mask)

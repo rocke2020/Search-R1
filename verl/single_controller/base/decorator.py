@@ -121,7 +121,7 @@ def dispatch_megatron_compute_data_proto(worker_group, *args, **kwargs):
     """
     from verl.single_controller.base.megatron.worker_group import MegatronWorkerGroup
     assert isinstance(worker_group, MegatronWorkerGroup)
-
+    print(f'{worker_group.dp_size = } {worker_group.pp_size = }')
     splitted_args, splitted_kwargs = _split_args_kwargs_data_proto(worker_group.dp_size, *args, **kwargs)
     return dispatch_megatron_compute(worker_group, *splitted_args, **splitted_kwargs)
 
@@ -237,7 +237,7 @@ def collect_megatron_pp_only(worker_group, output):
 def dispatch_megatron_pp_as_dp_data_proto(worker_group, *args, **kwargs):
     from verl.single_controller.base.megatron.worker_group import MegatronWorkerGroup
     assert isinstance(worker_group, MegatronWorkerGroup)
-
+    print(f'{worker_group.dp_size = } {worker_group.pp_size = }')
     pp_dp_size = worker_group.dp_size * worker_group.pp_size
     splitted_args, splitted_kwargs = _split_args_kwargs_data_proto(pp_dp_size, *args, **kwargs)
     return dispatch_megatron_pp_as_dp(worker_group, *splitted_args, **splitted_kwargs)
@@ -272,6 +272,7 @@ def collect_dp_compute(worker_group, output):
 def dispatch_dp_compute_data_proto(worker_group, *args, **kwargs):
     from verl.single_controller.base.worker_group import WorkerGroup
     assert isinstance(worker_group, WorkerGroup)
+    print(f'dispatch_dp_compute_data_proto {worker_group.world_size = }')
     splitted_args, splitted_kwargs = _split_args_kwargs_data_proto(worker_group.world_size, *args, **kwargs)
     return splitted_args, splitted_kwargs
 
@@ -280,7 +281,7 @@ def dispatch_dp_compute_data_proto_with_func(worker_group, *args, **kwargs):
     from verl.single_controller.base.worker_group import WorkerGroup
     assert isinstance(worker_group, WorkerGroup)
     assert type(args[0]) == FunctionType  # NOTE: The first one args is a function!
-
+    print(f'dispatch_dp_compute_data_proto_with_func {worker_group.world_size = }')
     splitted_args, splitted_kwargs = _split_args_kwargs_data_proto(worker_group.world_size, *args[1:], **kwargs)
     splitted_args_with_func = [[args[0]] * worker_group.world_size] + splitted_args
     return splitted_args_with_func, splitted_kwargs
